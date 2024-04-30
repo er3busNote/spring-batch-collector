@@ -1,0 +1,22 @@
+server:
+  host:
+    mariadb: 127.0.0.1
+  port: 9080
+
+spring:
+  application:
+    name: batch
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      names: ${job.name:NONE}
+      enabled: true
+  datasource:
+    username: root
+    password: root
+    url: jdbc:mariadb://${server.host.mariadb}:3309/collector
+    driver-class-name: org.mariadb.jdbc.Driver
+
+mybatis:
+  mapper-locations: classpath:/mapper/**/*.xml
