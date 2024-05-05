@@ -1,6 +1,7 @@
 package com.collector.batch.domain.certificate.service;
 
 import com.collector.batch.domain.certificate.dto.Item;
+import com.collector.batch.domain.certificate.dto.NationalTechDto;
 import com.collector.batch.domain.certificate.dto.Response;
 import com.collector.batch.domain.certificate.mapper.CertificateMapper;
 import io.netty.channel.ChannelOption;
@@ -96,7 +97,18 @@ public class CertificateService {
         log.info("item = {}", item.toString());
         Map<String, String> resultMap = new HashMap<>();
         resultMap.put("name", item.getJmNm());
+        resultMap.put("type", item.getSeriesNm());
         resultMap.put("agency", item.getInstiNm());
+        certificateMapper.insertNationalTechnical(resultMap);
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public void saveNationalTechnical(NationalTechDto nationalTechDto) {
+        log.info("item = {}", nationalTechDto.toString());
+        Map<String, String> resultMap = new HashMap<>();
+        resultMap.put("name", nationalTechDto.getName());
+        resultMap.put("type", nationalTechDto.getType());
+        resultMap.put("agency", nationalTechDto.getAgency());
         certificateMapper.insertNationalTechnical(resultMap);
     }
 }

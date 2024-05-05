@@ -3,15 +3,17 @@
 <mapper namespace="com.collector.batch.domain.certificate.mapper.CertificateMapper">
     <insert id="insertNationalTechnical">
         <selectKey keyProperty="p.seq" resultType="String" order="BEFORE">
-            SELECT CONCAT('HR', LPAD(IFNULL(SUBSTR(MAX(SEQ), 3)+1, 1), 8, '0')) FROM CERTIFICATE
+            SELECT CONCAT('NT', LPAD(IFNULL(SUBSTR(MAX(SEQ), 3)+1, 1), 8, '0')) FROM CERTIFICATE WHERE LEFT(SEQ, 2) = 'NT'
         </selectKey>
         INSERT INTO CERTIFICATE (
             SEQ
             , NAME
+            , TYPE
             , AGENCY
         ) VALUES (
             #{p.seq}
             , #{p.name}
+            , #{p.type}
             , #{p.agency}
         )
     </insert>
