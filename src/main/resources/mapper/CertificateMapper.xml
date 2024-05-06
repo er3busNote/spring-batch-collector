@@ -36,4 +36,25 @@
             , #{p.agency}
         )
     </insert>
+
+    <insert id="insertPrivate">
+        <selectKey keyProperty="p.seq" resultType="String" order="BEFORE">
+            SELECT CONCAT('EP', LPAD(IFNULL(SUBSTR(MAX(SEQ), 3)+1, 1), 8, '0')) FROM CERTIFICATE WHERE LEFT(SEQ, 2) = 'EP'
+        </selectKey>
+        INSERT INTO CERTIFICATE (
+            SEQ
+            , NAME
+            , GRADE
+            , TYPE
+            , AUTH_YN
+            , AGENCY
+        ) VALUES (
+            #{p.seq}
+            , #{p.name}
+            , #{p.grade}
+            , #{p.type}
+            , #{p.authYn}
+            , #{p.agency}
+        )
+    </insert>
 </mapper>

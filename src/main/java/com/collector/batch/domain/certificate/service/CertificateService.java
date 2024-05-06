@@ -1,9 +1,6 @@
 package com.collector.batch.domain.certificate.service;
 
-import com.collector.batch.domain.certificate.dto.Item;
-import com.collector.batch.domain.certificate.dto.NationalProDto;
-import com.collector.batch.domain.certificate.dto.NationalTechDto;
-import com.collector.batch.domain.certificate.dto.Response;
+import com.collector.batch.domain.certificate.dto.*;
 import com.collector.batch.domain.certificate.mapper.CertificateMapper;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
@@ -117,7 +114,7 @@ public class CertificateService {
         String name = nationalProDto.getName();
         String agency = nationalProDto.getAgency();
         String gradeInfo = nationalProDto.getGrade();
-        ArrayList<String> grades = parseString(gradeInfo);
+        ArrayList<String> grades = parseGrade(gradeInfo);
         for (String grade : grades) {
             log.info("name = {}, agency = {}, grade = {}", name, agency, grade);
             Map<String, String> resultMap = new HashMap<>();
@@ -129,16 +126,53 @@ public class CertificateService {
         }
     }
 
-    public static ArrayList<String> parseString(String gradeInfo) {
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public void savePrivate(PrivateDto privateDto) {
+        String name = privateDto.getName();
+        String agency = privateDto.getAgency();
+        String gradeInfo = privateDto.getGrade();
+        String authorizedStatus = privateDto.getAuthorizedStatus();
+        String authorizedYn = privateDto.getAuthorizedYn();
+        if(authorizedStatus.equals("부분공인")) {
+            Pattern pattern = Pattern.compile("([\\w가-힣\\s\\(\\)\\+\\-Ⅱ]+)\\(([YN])\\)");
+            Matcher matcher = pattern.matcher(authorizedYn);
+            while (matcher.find()) {
+                String grade = matcher.group(1).trim();
+                String authYn = matcher.group(2).trim();
+                log.info("name = {}, agency = {}, grade = {}, authYn = {}", name, agency, grade, authYn);
+                Map<String, String> resultMap = new HashMap<>();
+                resultMap.put("name", name);
+                resultMap.put("grade", grade);
+                resultMap.put("type", "민간자격증");
+                resultMap.put("authYn", authYn);
+                resultMap.put("agency", agency);
+                certificateMapper.insertPrivate(resultMap);
+            }
+        } else {    // 공인(Y), 등록(N)
+            String[] grades = gradeInfo.split(",");
+            for (String grade : grades) {
+                log.info("name = {}, agency = {}, grade = {}, authYn = {}", name, agency, grade, authorizedYn);
+                Map<String, String> resultMap = new HashMap<>();
+                resultMap.put("name", name);
+                resultMap.put("grade", grade);
+                resultMap.put("type", "민간자격증");
+                resultMap.put("authYn", authorizedYn);
+                resultMap.put("agency", agency);
+                certificateMapper.insertPrivate(resultMap);
+            }
+        }
+    }
+
+    private static ArrayList<String> parseGrade(String gradeInfo) {
         if(gradeInfo.contains(" : ")) {
             return combineValues(gradeInfo);
         }
         return splitString(gradeInfo);
     }
 
-    public static ArrayList<String> splitString(String input) {
+    private static ArrayList<String> splitString(String input) {
         ArrayList<String> items = new ArrayList<>();
-        Pattern pattern = Pattern.compile("[\\w|가-힣|\\s]+\\(.*?\\)|[\\w|가-힣|\\s]+");
+        Pattern pattern = Pattern.compile("[\\w가-힣\\s]+\\(.*?\\)|[\\w가-힣\\s]+");
         Matcher matcher = pattern.matcher(input);
         while (matcher.find()) {
             String match = matcher.group().trim();
@@ -151,7 +185,7 @@ public class CertificateService {
         return items;
     }
 
-    public static ArrayList<String> splitParentheses(String input) {
+    private static ArrayList<String> splitParentheses(String input) {
         ArrayList<String> items = new ArrayList<>();
         String[] parts = input.split("\\(");
         String prefix = parts[0];
@@ -162,13 +196,13 @@ public class CertificateService {
         return items;
     }
 
-    public static ArrayList<String> combineValues(String input) {
+    private static ArrayList<String> combineValues(String input) {
         ArrayList<String> combinedValues = new ArrayList<>();
         Pattern pattern = Pattern.compile("(분야|등급|구분)\\s*:\\s*([^:]+)\\s*(?=(?:분야|등급|구분)|$)");
         Matcher matcher = pattern.matcher(input);
         ArrayList<ArrayList<String>> allValues = new ArrayList<>();
 
-        // 필드별 값들을 모두 저장합니다.
+        // 필드별 값들을 모두 저장
         while (matcher.find()) {
             String fieldValues = matcher.group(2).trim();
             String[] values = fieldValues.split(", ");
@@ -179,12 +213,12 @@ public class CertificateService {
             allValues.add(fieldList);
         }
 
-        // 재귀적으로 모든 경우의 수를 조합하여 출력합니다.
+        // 재귀적으로 모든 경우의 수를 조합하여 출력
         combineValuesRecursive(allValues, 0, new ArrayList<>(), combinedValues);
         return combinedValues;
     }
 
-    public static void combineValuesRecursive(ArrayList<ArrayList<String>> allValues, int currentIndex, ArrayList<String> currentCombination, ArrayList<String> combinedValues) {
+    private static void combineValuesRecursive(ArrayList<ArrayList<String>> allValues, int currentIndex, ArrayList<String> currentCombination, ArrayList<String> combinedValues) {
         if (currentIndex == allValues.size()) {
             combinedValues.add(String.join(" ", currentCombination));
             return;

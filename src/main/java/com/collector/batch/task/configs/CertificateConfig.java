@@ -3,6 +3,7 @@ package com.collector.batch.task.configs;
 import com.collector.batch.domain.certificate.dto.NationalProDto;
 import com.collector.batch.domain.certificate.dto.NationalTechDto;
 import com.collector.batch.domain.certificate.dto.Item;
+import com.collector.batch.domain.certificate.dto.PrivateDto;
 import com.collector.batch.domain.certificate.service.CertificateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -118,7 +119,7 @@ public class CertificateConfig {
     @StepScope
     public FlatFileItemReader<NationalProDto> nationalProCsvItemReader() {
         return new FlatFileItemReaderBuilder<NationalProDto>()
-                .name("nationalTechCsvItemReader")
+                .name("nationalProCsvItemReader")
                 .encoding("EUC-KR")
                 .resource(new ClassPathResource("data/한국직업능력연구원_국가전문자격정보_20230906.csv"))
                 .delimited()
@@ -127,6 +128,23 @@ public class CertificateConfig {
                 .linesToSkip(1)
                 .fieldSetMapper(new BeanWrapperFieldSetMapper<NationalProDto>() {{
                     setTargetType(NationalProDto.class);
+                }})
+                .build();
+    }
+
+    @Bean
+    @StepScope
+    public FlatFileItemReader<PrivateDto> privateCsvItemReader() {
+        return new FlatFileItemReaderBuilder<PrivateDto>()
+                .name("nationalProCsvItemReader")
+                .encoding("EUC-KR")
+                .resource(new ClassPathResource("data/한국직업능력연구원_민간자격등록정보_20231231.csv"))
+                .delimited()
+                .delimiter(",")
+                .names("createDate", "status", "agency", "createNum", "name", "grade", "reception", "summary", "description", "authorizedStatus", "authorizedYn", "coOperation")
+                .linesToSkip(1)
+                .fieldSetMapper(new BeanWrapperFieldSetMapper<PrivateDto>() {{
+                    setTargetType(PrivateDto.class);
                 }})
                 .build();
     }
@@ -146,6 +164,12 @@ public class CertificateConfig {
     @Bean
     @StepScope
     public ItemProcessor<NationalProDto, NationalProDto> nationalProCsvItemProcessor() {
+        return item -> item;
+    }
+
+    @Bean
+    @StepScope
+    public ItemProcessor<PrivateDto, PrivateDto> privateCsvItemProcessor() {
         return item -> item;
     }
 
@@ -186,6 +210,18 @@ public class CertificateConfig {
     }
 
     @Bean
+    @StepScope
+    public ItemWriter<PrivateDto> privateCsvItemWriter() {
+        return items -> items.forEach(item -> {
+            try {
+                this.certificateService.savePrivate(item);
+            } catch (Exception e) {
+                log.error("DB 에러 : " + e.getMessage());
+            }
+        });
+    }
+
+    @Bean
     public Job certificateJob() {
         return jobBuilderFactory.get(JOB_NAME)
                 .start(certificateReadyStep(null))
@@ -193,6 +229,7 @@ public class CertificateConfig {
                 .from(decider()).on("NATIONAL_TECHNICAL_API").to(nationalTechApiStep())
                 .from(decider()).on("NATIONAL_TECHNICAL_CSV").to(nationalTechCsvStep())
                 .from(decider()).on("NATIONAL_PROFESSIONAL_CSV").to(nationalProCsvStep())
+                .from(decider()).on("PRIVATE_CSV").to(privateCsvStep())
                 .end()
                 .build();
     }
@@ -242,6 +279,17 @@ public class CertificateConfig {
     }
 
     @Bean
+    @JobScope
+    public Step privateCsvStep() {
+        return stepBuilderFactory.get(STEP_NAME)
+                .<PrivateDto, PrivateDto>chunk(CHUNK_SIZE)
+                .reader(privateCsvItemReader())
+                .processor(privateCsvItemProcessor())
+                .writer(privateCsvItemWriter())
+                .build();
+    }
+
+    @Bean
     public JobExecutionDecider decider() {
         return (jobExecution, stepExecution) -> {
             String condition = jobExecution.getJobParameters().getString("code");
@@ -252,6 +300,8 @@ public class CertificateConfig {
                 return new FlowExecutionStatus("NATIONAL_TECHNICAL_CSV");
             } else if (condition != null && condition.equals("NP_CSV")) {
                 return new FlowExecutionStatus("NATIONAL_PROFESSIONAL_CSV");
+            } else if (condition != null && condition.equals("P_CSV")) {
+                return new FlowExecutionStatus("PRIVATE_CSV");
             } else {
                 throw new IllegalArgumentException("파라미터가 잘못 되었습니다.");
             }
