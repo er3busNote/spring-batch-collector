@@ -12,4 +12,6 @@ import java.util.Map;
 public interface CertificateMapper {
 
     void insertNationalTechnical(@Param("p") Map<String, String> resultMap);
+
+    void insertNationalProfessional(@Param("p") Map<String, String> resultMap);
 }
