@@ -8,13 +8,19 @@
         INSERT INTO CERTIFICATE (
             SEQ
             , NAME
+            , GRADE
             , TYPE
+            , AUTH_YN
             , AGENCY
+            , INSTITUTION
         ) VALUES (
             #{p.seq}
             , #{p.name}
+            , #{p.grade}
             , #{p.type}
+            , #{p.authYn}
             , #{p.agency}
+            , #{p.institution}
         )
     </insert>
 
@@ -27,13 +33,17 @@
             , NAME
             , GRADE
             , TYPE
+            , AUTH_YN
             , AGENCY
+            , INSTITUTION
         ) VALUES (
             #{p.seq}
             , #{p.name}
             , #{p.grade}
             , #{p.type}
+            , #{p.authYn}
             , #{p.agency}
+            , #{p.institution}
         )
     </insert>
 
@@ -48,6 +58,7 @@
             , TYPE
             , AUTH_YN
             , AGENCY
+            , INSTITUTION
         ) VALUES (
             #{p.seq}
             , #{p.name}
@@ -55,6 +66,7 @@
             , #{p.type}
             , #{p.authYn}
             , #{p.agency}
+            , #{p.institution}
         )
     </insert>
 </mapper>

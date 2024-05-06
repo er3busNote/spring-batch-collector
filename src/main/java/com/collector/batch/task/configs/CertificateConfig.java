@@ -124,7 +124,7 @@ public class CertificateConfig {
                 .resource(new ClassPathResource("data/한국직업능력연구원_국가전문자격정보_20230906.csv"))
                 .delimited()
                 .delimiter(",")
-                .names("name", "law", "agency", "agencyUrl", "reception", "receptionUrl", "purpose", "institution", "grade", "description", "requirements", "qualification", "receptionDetail", "process", "subject", "criteria", "career", "exemptions")
+                .names("name", "law", "institution", "institutionUrl", "agency", "agencyUrl", "purpose", "effect", "grade", "description", "requirements", "qualification", "receptionDetail", "process", "subject", "criteria", "career", "exemptions")
                 .linesToSkip(1)
                 .fieldSetMapper(new BeanWrapperFieldSetMapper<NationalProDto>() {{
                     setTargetType(NationalProDto.class);
@@ -141,7 +141,7 @@ public class CertificateConfig {
                 .resource(new ClassPathResource("data/한국직업능력연구원_민간자격등록정보_20231231.csv"))
                 .delimited()
                 .delimiter(",")
-                .names("createDate", "status", "agency", "createNum", "name", "grade", "reception", "summary", "description", "authorizedStatus", "authorizedYn", "coOperation")
+                .names("createDate", "status", "institution", "createNum", "name", "grade", "agency", "summary", "description", "authorizedStatus", "authorizedYn", "coOperation")
                 .linesToSkip(1)
                 .fieldSetMapper(new BeanWrapperFieldSetMapper<PrivateDto>() {{
                     setTargetType(PrivateDto.class);

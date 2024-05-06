@@ -15,7 +15,7 @@ public class PrivateDto {
 
     private String status;
 
-    private String agency;
+    private String institution;
 
     private String createNum;
 
@@ -23,7 +23,7 @@ public class PrivateDto {
 
     private String grade;
 
-    private String reception;
+    private String agency;
 
     private String summary;
 

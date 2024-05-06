@@ -15,5 +15,5 @@ public class NationalTechDto {
 
     private String type;
 
-    private String agency;
+    private String institution;
 }

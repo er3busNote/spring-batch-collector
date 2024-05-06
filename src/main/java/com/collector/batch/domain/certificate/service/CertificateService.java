@@ -36,7 +36,8 @@ public class CertificateService {
 
     private static final String API_URL = "http://openapi.q-net.or.kr/api/service/rest/InquiryQualInfo/getList";
     private static final String API_KEY = "";
-    private static final String SERVICE_CODE = "04"; // (계열코드) 01:기술사, 02:기능장, 03:기사, 04:기능사
+    private static final String SERVICE_CODE = "01"; // (계열코드) 01:기술사, 02:기능장, 03:기사, 04:기능사
+    private static final NationalTechCode nationalTechCode = NationalTechCode.of(SERVICE_CODE);
 
     @Autowired
     CertificateMapper certificateMapper;
@@ -94,8 +95,11 @@ public class CertificateService {
         log.info("item = {}", item.toString());
         Map<String, String> resultMap = new HashMap<>();
         resultMap.put("name", item.getJmNm());
-        resultMap.put("type", item.getSeriesNm());
-        resultMap.put("agency", item.getInstiNm());
+        resultMap.put("grade", item.getSeriesNm());
+        resultMap.put("type", "국가기술자격");
+        resultMap.put("authYn", "Y");
+        resultMap.put("agency", item.getImplNm());
+        resultMap.put("institution", item.getInstiNm());
         certificateMapper.insertNationalTechnical(resultMap);
     }
 
@@ -105,7 +109,7 @@ public class CertificateService {
         Map<String, String> resultMap = new HashMap<>();
         resultMap.put("name", nationalTechDto.getName());
         resultMap.put("type", nationalTechDto.getType());
-        resultMap.put("agency", nationalTechDto.getAgency());
+        resultMap.put("institution", nationalTechDto.getInstitution());
         certificateMapper.insertNationalTechnical(resultMap);
     }
 
@@ -113,6 +117,7 @@ public class CertificateService {
     public void saveNationalProfessional(NationalProDto nationalProDto) {
         String name = nationalProDto.getName();
         String agency = nationalProDto.getAgency();
+        String institution = nationalProDto.getInstitution();
         String gradeInfo = nationalProDto.getGrade();
         ArrayList<String> grades = parseGrade(gradeInfo);
         for (String grade : grades) {
@@ -121,7 +126,9 @@ public class CertificateService {
             resultMap.put("name", name);
             resultMap.put("grade", grade);
             resultMap.put("type", "국가전문자격");
+            resultMap.put("authYn", "Y");
             resultMap.put("agency", agency);
+            resultMap.put("institution", institution);
             certificateMapper.insertNationalProfessional(resultMap);
         }
     }
@@ -130,6 +137,7 @@ public class CertificateService {
     public void savePrivate(PrivateDto privateDto) {
         String name = privateDto.getName();
         String agency = privateDto.getAgency();
+        String institution = privateDto.getInstitution();
         String gradeInfo = privateDto.getGrade();
         String authorizedStatus = privateDto.getAuthorizedStatus();
         String authorizedYn = privateDto.getAuthorizedYn();
@@ -146,6 +154,7 @@ public class CertificateService {
                 resultMap.put("type", "민간자격증");
                 resultMap.put("authYn", authYn);
                 resultMap.put("agency", agency);
+                resultMap.put("institution", institution);
                 certificateMapper.insertPrivate(resultMap);
             }
         } else {    // 공인(Y), 등록(N)
@@ -158,6 +167,7 @@ public class CertificateService {
                 resultMap.put("type", "민간자격증");
                 resultMap.put("authYn", authorizedYn);
                 resultMap.put("agency", agency);
+                resultMap.put("institution", institution);
                 certificateMapper.insertPrivate(resultMap);
             }
         }

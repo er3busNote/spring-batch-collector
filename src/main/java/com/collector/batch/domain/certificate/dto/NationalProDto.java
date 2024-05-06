@@ -15,17 +15,17 @@ public class NationalProDto {
 
     private String law;
 
+    private String institution;
+
+    private String institutionUrl;
+
     private String agency;
 
     private String agencyUrl;
 
-    private String reception;
-
-    private String receptionUrl;
-
     private String purpose;
 
-    private String institution;
+    private String effect;
 
     private String grade;
 
