@@ -90,7 +90,7 @@ public class CertificateService {
         }
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void saveNationalTechnical(Item item) {
         log.info("item = {}", item.toString());
         Map<String, String> resultMap = new HashMap<>();
@@ -103,7 +103,7 @@ public class CertificateService {
         certificateMapper.insertNationalTechnical(resultMap);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void saveNationalTechnical(NationalTechDto nationalTechDto) {
         log.info("item = {}", nationalTechDto.toString());
         Map<String, String> resultMap = new HashMap<>();
@@ -113,7 +113,7 @@ public class CertificateService {
         certificateMapper.insertNationalTechnical(resultMap);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void saveNationalProfessional(NationalProDto nationalProDto) {
         String name = nationalProDto.getName();
         String agency = nationalProDto.getAgency();
@@ -133,7 +133,7 @@ public class CertificateService {
         }
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void savePrivate(PrivateDto privateDto) {
         String name = privateDto.getName();
         String agency = privateDto.getAgency();
